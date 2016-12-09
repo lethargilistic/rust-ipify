@@ -1,0 +1,13 @@
+[package]
+
+name = "rust-ipify"
+
+version = "0.1.0"
+
+authors = ["1324172"]
+
+
+
+[dependencies.reqwest]
+version = "0.1.0"
+default-features = false
