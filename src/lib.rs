@@ -4,12 +4,16 @@ use std::io::Read;
 use std::time::Duration;
 use std::thread;
 
+const MAX_RETRIES: i32 = 3;
+const RETRY_WAIT_TIME : i32 = 500;
+static API_URL: &'static str = "https://api.ipify.org";
+
 fn get_response(tries_remaining:i32) -> reqwest::Response {
-	match reqwest::get("https://api.ipify.org") {
+	match reqwest::get(API_URL) {
         Ok(response) => response,
         Err(err) => 
             if tries_remaining > 0 {
-                thread::sleep(Duration::from_millis(500));
+                thread::sleep(Duration::from_millis(RETRY_WAIT_TIME));
                 get_response(tries_remaining-1)
             }
             else{
@@ -17,8 +21,9 @@ fn get_response(tries_remaining:i32) -> reqwest::Response {
             }
     }
 }
-fn get_ip() -> String {
-    let mut res = get_response(3);
+
+pub fn get_ip() -> String {
+    let mut res = get_response(MAX_RETRIES);
     
 	assert!(res.status().is_success(), "Received an invalid status from ipify");
 
@@ -28,6 +33,11 @@ fn get_ip() -> String {
 	ip
 }
 
-fn main() {
-    println!("for thee {:?}", get_ip());
+#[test]
+fn test_get_ip() {
+    use std::net::SocketAddr;
+
+    let ip = get_ip() + ":8080"; //Needs a port number
+
+    let server: SocketAddr = ip.parse().expect("The IP address is invalid");
 }
