@@ -5,22 +5,20 @@ use std::time::Duration;
 use std::thread;
 
 fn get_response(tries_remaining:i32) -> reqwest::Response {
-	let mut res = match reqwest::get("https://api.ipify.org") {
-        Ok(val) => val,
+	match reqwest::get("https://api.ipify.org") {
+        Ok(response) => response,
         Err(err) => 
-            if tries_remaining > 0{
+            if tries_remaining > 0 {
                 thread::sleep(Duration::from_millis(500));
-                return get_response(tries_remaining-1);
+                get_response(tries_remaining-1)
             }
             else{
-                panic!("There was a network error when trying to connect to ipify.");
+                panic!("There was a network error when trying to connect to ipify.\n{}", err);
             }
-    };
-
-    res
+    }
 }
 fn get_ip() -> String {
-    let mut res = reqwest::get("https://api.ipify.org").unwrap() ;//get_response(3);
+    let mut res = get_response(3);
     
 	assert!(res.status().is_success(), "Received an invalid status from ipify");
 
