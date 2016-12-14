@@ -1,6 +1,6 @@
 [package]
 
-name = "rust-ipify"
+name = "ipify"
 version = "0.1.0"
 
 authors = ["Mike Overby"]
